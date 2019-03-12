@@ -6,6 +6,7 @@ import com.dubboclub.dk.web.model.SpyZooResponse;
 import com.dubboclub.dk.web.model.SpyZooNode;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
 import org.apache.zookeeper.ZooKeeper;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,17 +64,22 @@ public class ZooPeeperController implements InitializingBean{
                 List<String> children = zooKeeper.getChildren(parent,false);
                 List<SpyZooNode> nodes = new ArrayList<SpyZooNode>();
                 for(String child:children){
-                    SpyZooNode node = new SpyZooNode();
-                    node.setName(child);
-                    node.setDecodeName(URLDecoder.decode(child, "UTF-8"));
-                    node.setParent(parent);
-                    node.setNodeStat(zooKeeper.exists((parent.equals("/")?"":parent)+"/"+child,false));
-                    if(zooKeeper.getChildren((parent.equals("/")?"":parent)+"/"+child,false).size()>0){
-                        node.setNodeList(new ArrayList<SpyZooNode>());
-                    }else{
-                        node.setChildNodes(new ArrayList<SpyZooNode>());
+                    try {
+                        SpyZooNode node = new SpyZooNode();
+                        node.setName(child);
+                        node.setDecodeName(URLDecoder.decode(child, "UTF-8"));
+                        node.setParent(parent);
+                        node.setNodeStat(zooKeeper.exists((parent.equals("/")?"":parent)+"/"+child,false));
+                        if(zooKeeper.getChildren((parent.equals("/")?"":parent)+"/"+child,false).size()>0){
+                            node.setNodeList(new ArrayList<SpyZooNode>());
+                        }else{
+                            node.setChildNodes(new ArrayList<SpyZooNode>());
+                        }
+                        nodes.add(node);
+                    } catch (Exception e) {
+                        logger.error("读取节点失败", e);
+                        continue;
                     }
-                    nodes.add(node);
                 }
                 response.setNodeList(nodes);
             }else{
