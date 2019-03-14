@@ -123,7 +123,11 @@
             <groupId>org.slf4j</groupId>
             <artifactId>log4j-over-slf4j</artifactId>
         </dependency>
-
+        <!--googleauth-->
+        <dependency>
+            <groupId>com.warrenstrange</groupId>
+            <artifactId>googleauth</artifactId>
+        </dependency>
         <!-- test -->
         <dependency>
             <groupId>junit</groupId>
@@ -132,6 +136,18 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!--java servlet -->
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.0.1</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -145,7 +161,7 @@
                     <server>tomcat7</server>
                     <url>http://127.0.0.1</url>
                     <port>9090</port>
-                    <path>/monitor</path>
+                    <path>/console</path>
                 </configuration>
             </plugin>
             <plugin>

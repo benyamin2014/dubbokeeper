@@ -3,26 +3,38 @@
          xmlns:b="http://www.springframework.org/schema/beans"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.springframework.org/schema/beans
-		 http://www.springframework.org/schema/beans/spring-beans.xsd
+		 http://www.springframework.org/schema/beans/spring-beans-4.1.xsd
 		 http://www.springframework.org/schema/security
-		 http://www.springframework.org/schema/security/spring-security.xsd">
+		 http://www.springframework.org/schema/security/spring-security-4.1.xsd">
 
     <!-- 不拦截静态资源 -->
+    <http pattern="/login.htm" security="none"></http>
     <http pattern="/css/**" security="none" />
     <http pattern="/img/**" security="none" />
     <http pattern="/js/**" security="none" />
     <http pattern="/templates/**" security="none" />
-
+    <!--自定义 登录页面-->
     <http use-expressions="true">
-        <intercept-url pattern="/**" access="authenticated"/>
+        <form-login login-page="/login.htm" login-processing-url="/login" username-parameter="username" password-parameter="password"
+                    default-target-url="/index.htm" always-use-default-target="true"
+        />
+        <intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')"/>
         <http-basic />
         <csrf disabled="true"/>
+        <!--google TOTP 动态码 验证过滤器，用户密码验证过滤器之前-->
+        <custom-filter ref="totpAuthentication" before="FORM_LOGIN_FILTER"/>
+
     </http>
-    <authentication-manager>
+
+    <authentication-manager alias="authenticationManager">
         <authentication-provider>
             <user-service>
-                <user name="${manager.username}" password="${manager.password}" authorities="hasRole('MANAGER')"/>
+                <user name="${manager.username}" password="${manager.password}" authorities="ROLE_ADMIN"/>
             </user-service>
         </authentication-provider>
     </authentication-manager>
+    <!--google TOTP 动态码 验证过滤器-->
+    <b:bean id="totpAuthentication" class="com.dubboclub.dk.web.security.TOTPAuthenticationProcessingFilter">
+        <b:property name="authenticationManager" ref="authenticationManager"></b:property>
+    </b:bean>
 </b:beans>
