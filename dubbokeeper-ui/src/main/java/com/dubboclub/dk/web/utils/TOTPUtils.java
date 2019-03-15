@@ -74,7 +74,7 @@ public class TOTPUtils {
         @Override
         public String getSecretKey(String userName) {
 
-            return store.get(userName);
+            return store.get(userName) == null ? "" : store.get(userName);
         }
 
         @Override
