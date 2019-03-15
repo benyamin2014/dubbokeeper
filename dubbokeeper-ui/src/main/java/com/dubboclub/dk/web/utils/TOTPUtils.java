@@ -40,6 +40,10 @@ public class TOTPUtils {
      * @return
      */
    public boolean checkTotpcode(String username, String totpcode) {
+       if(store.get(username)==null) {
+           return false;
+       }
+
        return ga.authorizeUser(username, Integer.valueOf(totpcode));
    }
 
@@ -53,7 +57,7 @@ public class TOTPUtils {
        final String secret = key.getKey();
        final List<Integer> scratchCodes = key.getScratchCodes();
        //公司名 标签 密钥
-       String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthURL("公司名称", username, key);
+       String otpAuthURL = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("公司名称", username, key);
        System.out.println("Please register (otpauth uri): " + otpAuthURL);
        System.out.println("Base64-encoded secret key is " + secret);
        return otpAuthURL;
